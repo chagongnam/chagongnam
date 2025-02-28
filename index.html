@@ -52,6 +52,17 @@
             height: auto;
             margin-top: 10px;
         }
+        .delete-btn {
+            display: block;
+            margin: 5px auto;
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -81,14 +92,14 @@
             const container = document.getElementById('gallery-container');
             container.innerHTML = '';
             
-            studyGroups.sort((a, b) => b.id - a.id); // 최신 기수가 상단에 오도록 정렬
+            studyGroups.sort((a, b) => b.id - a.id);
             
             studyGroups.forEach(group => {
                 const div = document.createElement('div');
                 div.className = 'gallery';
                 div.innerHTML = `
                     <h2>${group.name}</h2>
-                    <input type="file" class="upload" data-id="${group.id}" accept="image/*">
+                    <input type="file" class="upload" data-id="${group.id}" accept="image/*" multiple>
                     <div class="image-container" id="gallery-${group.id}"></div>
                 `;
                 container.appendChild(div);
@@ -97,17 +108,36 @@
 
         document.body.addEventListener('change', function(event) {
             if (event.target.classList.contains('upload')) {
-                const file = event.target.files[0];
+                const files = event.target.files;
                 const groupId = event.target.dataset.id;
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        document.getElementById(`gallery-${groupId}`).appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                }
+                
+                Array.from(files).forEach(file => {
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imgContainer = document.getElementById(`gallery-${groupId}`);
+                            const imgWrapper = document.createElement('div');
+                            imgWrapper.style.position = 'relative';
+                            imgWrapper.style.display = 'inline-block';
+                            imgWrapper.style.margin = '5px';
+                            
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            imgWrapper.appendChild(img);
+                            
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.textContent = '삭제';
+                            deleteBtn.onclick = function() {
+                                imgWrapper.remove();
+                            };
+                            
+                            imgWrapper.appendChild(deleteBtn);
+                            imgContainer.appendChild(imgWrapper);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             }
         });
         
