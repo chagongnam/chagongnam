@@ -36,6 +36,22 @@
         .contact {
             background-color: #ff6600;
         }
+        .gallery-container {
+            margin-top: 30px;
+        }
+        .gallery {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .gallery img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -52,5 +68,50 @@
     <a href="https://t.me/Chagong_VIP" target="_blank" class="btn contact">
         문의하기
     </a>
+
+    <div id="gallery-container" class="gallery-container"></div>
+
+    <script>
+        let studyGroups = [
+            { id: 1, name: "📸 공부방 1기", images: [] },
+            { id: 2, name: "📸 공부방 2기", images: [] }
+        ];
+        
+        function renderGalleries() {
+            const container = document.getElementById('gallery-container');
+            container.innerHTML = '';
+            
+            studyGroups.sort((a, b) => b.id - a.id); // 최신 기수가 상단에 오도록 정렬
+            
+            studyGroups.forEach(group => {
+                const div = document.createElement('div');
+                div.className = 'gallery';
+                div.innerHTML = `
+                    <h2>${group.name}</h2>
+                    <input type="file" class="upload" data-id="${group.id}" accept="image/*">
+                    <div class="image-container" id="gallery-${group.id}"></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        document.body.addEventListener('change', function(event) {
+            if (event.target.classList.contains('upload')) {
+                const file = event.target.files[0];
+                const groupId = event.target.dataset.id;
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        document.getElementById(`gallery-${groupId}`).appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+        
+        renderGalleries();
+    </script>
 </body>
 </html>
